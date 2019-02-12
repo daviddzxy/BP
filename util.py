@@ -4,11 +4,12 @@ import os
 import posixpath
 import pydicom
 import pylab
+import platform
 
-path_t2_tra_pic = '.\Data\\t2_tra_pic'
-path_t2_tra_np = '.\Data\\t2_tra_np'
-path_diff_tra_ADC_BVAL_pic = '.\Data\\diff_ADC_BVAL_pic'
-path_diff_tra_ADC_BVAL_np = '.\Data\\diff_ADC_BVAL_np'
+path_t2_tra_pic = ''
+path_t2_tra_np = ''
+path_diff_tra_ADC_BVAL_pic = ''
+path_diff_tra_ADC_BVAL_np = ''
 
 
 def _find_slices(prox_id, dcm_num, modality):
@@ -98,7 +99,7 @@ def _save_as_numpy_array(dicom_files_list, coordinates, patch_size, save_path, n
 
         array_list.append(array)
     #transofmuj 2D pole / polia na 3D
-    array_list = np.stack(array_list, axis=2)
+    array_list = np.transpose(np.stack(array_list, axis=2), (2, 1, 0))
     np.save(save_path + '/' + name, array_list)
 
 
@@ -127,6 +128,17 @@ def process_diff_tra(dataframe):
             #_save_as_tiff_image(slices_list[0], coordinates, 50, path_diff_tra_ADC_BVAL_pic, name)
 
 def main():
+    if platform.system() == 'Windows':
+        path_t2_tra_pic = '.\Data\\t2_tra_pic'
+        path_t2_tra_np = '.\Data\\t2_tra_np'
+        path_diff_tra_ADC_BVAL_pic = '.\Data\\diff_ADC_BVAL_pic'
+        path_diff_tra_ADC_BVAL_np = '.\Data\\diff_ADC_BVAL_np'
+    elif platform.system() == 'Linux':
+        path_t2_tra_pic = './Data/t2_tra_pic'
+        path_t2_tra_np = './Data/t2_tra_np'
+        path_diff_tra_ADC_BVAL_pic = './Data/diff_ADC_BVAL_pic'
+        path_diff_tra_ADC_BVAL_np = './Data/diff_ADC_BVAL_np'
+
     findings = pd.read_csv("D:/BP/Dataset_PROSTATEX/PROSTATEx lesion information/ProstateX-Findings-Train.csv")
     images = pd.read_csv("D:/BP/Dataset_PROSTATEX/PROSTATEx lesion information/ProstateX-Images-Train.csv")
     findings = findings[['ProxID', 'pos', 'fid', 'ClinSig', 'zone']]
