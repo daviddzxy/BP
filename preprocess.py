@@ -4,8 +4,8 @@ import platform
 
 path_t2_tra_np = ''
 path_t2_tra_np_min_max = ''
-
-
+path_diff_tra_ADC_BVAL_np = ''
+path_diff_tra_ADC_BVAL_np_min_max = ''
 def load(path):
     result_list = []
     data_paths = os.listdir(path)
@@ -32,9 +32,13 @@ def main():
     if platform.system() == 'Windows':
         path_t2_tra_np = '.\Data\\t2_tra_np'
         path_t2_tra_np_min_max = '.\Data\\t2_tra_np_min_max'
+        path_diff_tra_ADC_BVAL_np = '.\Data\\diff_ADC_BVAL_np'
+        path_diff_tra_ADC_BVAL_np_min_max = '.\Data\\diff_ADC_BVAL_np_min_max'
     elif platform.system() == 'Linux':
         path_t2_tra_np = './Data/t2_tra_np'
         path_t2_tra_np_min_max = './Data/t2_tra_np_min_max'
+        path_diff_tra_ADC_BVAL_np = './Data/diff_ADC_BVAL_np'
+        path_diff_tra_ADC_BVAL_np_min_max = './Data/diff_ADC_BVAL_np_min_max'
 
 
     t2_data_path_list = load(path_t2_tra_np)
@@ -42,6 +46,15 @@ def main():
     data_list = min_max_normalization(data_list)
     for data, path in zip(data_list, path_list):
         save(data, path_t2_tra_np_min_max, path.rsplit(os.sep, 1)[1])
+
+    diff_tra_path_list = load(path_diff_tra_ADC_BVAL_np)
+    data_list, path_list = list(map(list, zip(*diff_tra_path_list)))
+    data_list = min_max_normalization(data_list)
+    for data, path in zip(data_list, path_list):
+        save(data, path_diff_tra_ADC_BVAL_np_min_max, path.rsplit(os.sep, 1)[1])
+
+
+
 
 
 if __name__ == '__main__':
