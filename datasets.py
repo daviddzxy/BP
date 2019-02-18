@@ -18,7 +18,7 @@ class SiameseNetworkDataset(Dataset):
             else:
                 self.positive_images.append(image)
 
-        self._make_random_pairs(50)
+        self._make_random_pairs(200)
 
     def __getitem__(self, index):
         img0, img1, label = self.pairs.__getitem__(index)

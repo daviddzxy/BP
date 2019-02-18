@@ -6,12 +6,6 @@ import pydicom
 import pylab
 import platform
 
-path_t2_tra_pic = ''
-path_t2_tra_np = ''
-path_diff_tra_ADC_BVAL_pic = ''
-path_diff_tra_ADC_BVAL_np = ''
-
-
 def _find_slices(prox_id, dcm_num, modality):
     """
     funkcia vyhladava DICOM subory na disku podla ID pacienta, DCM_NUM a modality(t2_tra, diff_ADC, diff_BVAL)
@@ -104,18 +98,18 @@ def _save_as_numpy_array(dicom_files_list, coordinates, patch_size, save_path, n
 
 
 
-def process_t2_tra(dataframe):
+def process_t2_tra(dataframe, path_np, path_pic):
     dataframe = dataframe[dataframe['DCMSerDescr'] == 't2_tse_tra']
     for index, row in dataframe.iterrows():
         slices_list = [_find_slices(row.ProxID, row.DCMSerNum, 't2_tra')]
         if None not in slices_list:
             coordinates = list(map(int, row.ijk.split()))
             name = str(row.ClinSig) + ' ' + str(row.ProxID) + " IJK " + str(row.ijk) + " DCM " + str(row.DCMSerNum)
-            _save_as_numpy_array(slices_list, coordinates, 32, path_t2_tra_np, name)
-            #_save_as_tiff_image(slices_list[0], coordinates, 50, path_t2_tra_pic, name)
+            _save_as_numpy_array(slices_list, coordinates, 16, path_np, name)
+            _save_as_tiff_image(slices_list[0], coordinates, 50, path_pic, name)
 
 
-def process_diff_tra(dataframe):
+def process_diff_tra(dataframe, path_np, path_pic):
     combined_ADC = dataframe[(dataframe['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_ADC') | (dataframe['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_MIX_ADC')]
     combined_BVAL = dataframe[(dataframe['DCMSerDescr'] == 'ep2d_diff_tra_DYNDISTCALC_BVAL') | (dataframe['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_MIXCALC_BVAL')]
     combined_diff = pd.merge(combined_ADC, combined_BVAL, how='left', left_on=['ProxID', 'fid', 'pos', 'ijk', 'Dim', 'zone', 'ClinSig'], right_on=['ProxID', 'fid', 'pos', 'ijk', 'Dim', 'zone', 'ClinSig'])
@@ -124,8 +118,8 @@ def process_diff_tra(dataframe):
         if None not in slices_list:
             coordinates = list(map(int, row.ijk.split()))
             name = str(row.ClinSig) + ' ' + str(row.ProxID) + " IJK " + str(row.ijk)
-            _save_as_numpy_array(slices_list, coordinates, 32, path_diff_tra_ADC_BVAL_np, name)
-            #_save_as_tiff_image(slices_list[0], coordinates, 50, path_diff_tra_ADC_BVAL_pic, name)
+            _save_as_numpy_array(slices_list, coordinates, 16, path_np, name)
+            _save_as_tiff_image(slices_list[0], coordinates, 50, path_pic, name)
 
 def main():
     if platform.system() == 'Windows':
@@ -144,8 +138,8 @@ def main():
     findings = findings[['ProxID', 'pos', 'fid', 'ClinSig', 'zone']]
     images = images[['ProxID', 'pos', 'Name', 'fid', 'ijk', 'Dim', 'DCMSerDescr', 'DCMSerNum']]
     combined_df = pd.merge(images, findings, how='left', left_on=['ProxID', 'fid', 'pos'], right_on=['ProxID', 'fid', 'pos'])
-    process_t2_tra(combined_df)
-    process_diff_tra(combined_df)
+    process_t2_tra(combined_df, path_t2_tra_np, path_t2_tra_pic)
+    process_diff_tra(combined_df, path_diff_tra_ADC_BVAL_np, path_diff_tra_ADC_BVAL_pic)
 
 
 if __name__ == '__main__':

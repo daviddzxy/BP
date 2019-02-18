@@ -18,7 +18,7 @@ class SiameseNet(nn.Module):
         )
 
         self.fc1 = nn.Sequential(
-            nn.Linear(8 * 26 * 26, 500),
+            nn.Linear(8 * 10 * 10, 500),
             nn.ReLU(inplace=True),
 
             nn.Linear(500, 500),
@@ -42,7 +42,7 @@ class Channel2SiameseNet(nn.Module):
     def __init__(self):
         super(Channel2SiameseNet, self).__init__()
         self.cnn1 = nn.Sequential(
-            nn.Conv2d(2, 4, kernel_size=3),
+            nn.Conv2d(2, 4, kernel_size=3,),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(4),
 
@@ -56,7 +56,7 @@ class Channel2SiameseNet(nn.Module):
         )
 
         self.fc1 = nn.Sequential(
-            nn.Linear(8 * 26 * 26, 500),
+            nn.Linear(8 * 10 * 10, 500),
             nn.ReLU(inplace=True),
 
             nn.Linear(500, 500),
