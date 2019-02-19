@@ -21,14 +21,21 @@ class SiameseNetworkDataset(Dataset):
         self._make_random_pairs(200)
 
     def __getitem__(self, index):
-        img0, img1, label = self.pairs.__getitem__(index)
+        img0, img1, pair_label = self.pairs.__getitem__(index)
 
         img_data0 = np.load(os.path.join(self.data_file, img0))
         img_data1 = np.load(os.path.join(self.data_file, img1))
 
-        return torch.from_numpy(img_data0).float(),\
-               torch.from_numpy(img_data1).float(),\
-               label
+        img0_label = self._get_label(img0)
+        img1_label = self._get_label(img1)
+
+        return \
+            torch.from_numpy(img_data0).float(),\
+            torch.from_numpy(img_data1).float(),\
+            pair_label,\
+            img0_label,\
+            img1_label
+
 
     def __len__(self):
         return len(self.pairs)
@@ -44,3 +51,12 @@ class SiameseNetworkDataset(Dataset):
             self.pairs.append([random.choice(self.positive_images), random.choice(self.negative_images), 1])
 
         random.shuffle(self.pairs)
+
+    def _get_label(self, name):
+        if name.__contains__("False"):
+            return 0
+        else:
+            return 1
+
+
+
