@@ -2,11 +2,13 @@ import random
 import torch
 import numpy as np
 import os
+from datetime import datetime
+
 
 from torch.utils.data import Dataset
 
 class SiameseNetworkDataset(Dataset):
-    def __init__(self, data_file, images):
+    def __init__(self, data_file, images, no_pairs):
         self.data_file = data_file
         self.negative_images = []
         self.positive_images = []
@@ -18,7 +20,7 @@ class SiameseNetworkDataset(Dataset):
             else:
                 self.positive_images.append(image)
 
-        self._make_random_pairs(200)
+        self._make_random_pairs(no_pairs)
 
     def __getitem__(self, index):
         img0, img1, pair_label = self.pairs.__getitem__(index)
@@ -40,11 +42,13 @@ class SiameseNetworkDataset(Dataset):
     def __len__(self):
         return len(self.pairs)
 
-    def _make_random_pairs(self, no_of_pairs):
+    def _make_random_pairs(self, no_pairs):
         """
         Vytvori pary obrazkov vsetkych kombinacii, teda dokopy 4 * no_of_pairs
         """
-        for i in range(no_of_pairs):
+
+        random.seed(datetime.now())
+        for i in range(no_pairs):
             self.pairs.append([random.choice(self.negative_images), random.choice(self.negative_images), 0])
             self.pairs.append([random.choice(self.positive_images), random.choice(self.positive_images), 0])
             self.pairs.append([random.choice(self.negative_images), random.choice(self.positive_images), 1])

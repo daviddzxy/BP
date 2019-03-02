@@ -1,26 +1,56 @@
 import torch
 import platform
 import numpy as np
+import random
 import os
+import matplotlib.pyplot as plt
+
 from torch.utils.data import DataLoader
 from torch import optim
-
-import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 import networks
 import datasets
 import loss_functions
 
-def train_loop(epoch_count, network, loss, dataset, dataloader):
-    dataset_loader = DataLoader(dataset, shuffle=1, num_workers=8, batch_size=16)
+
+def eval_loop(network, dataloader):
+    out_list = []
+    with torch.no_grad():
+        embed_network = network
+        embed_network.eval()
+        for img0, img1, pair_label, label0, label1 in dataloader:
+            img0, img1 = img0.cuda(), img1.cuda()
+            out1, out2 = network.forward(img0, img1)
+            out_list.append([out1.cpu().numpy(), out2.cpu().numpy(), label0.cpu().numpy(), label1.cpu().numpy()])
+
+    return out_list
+
+
+def plot_result(result_list):
+    for item in result_list:
+        x0, y0 = zip(*item[0])
+        x1, y1 = zip(*item[1])
+        label0 = item[2][0]
+        label1 = item[3][0]
+
+        point0 = 'co' if label0 == 0 else 'bo'
+        point1 = 'co' if label1 == 0 else 'bo'
+
+        plt.xlabel('dim1')
+        plt.ylabel('dim2')
+        plt.plot(x0, y0, point0)
+        plt.plot(x1, y1, point1)
+
+    plt.show()
+
+def train_loop(epoch_count, network, loss, dataloader):
     optimizer = optim.Adam(network.parameters(), lr=0.0001)
 
-    counter = []
     loss_history = []
-    iteration_number = 0
 
     for epoch in range(0, epoch_count):
-        for i, data in enumerate(dataset_loader, 0):
+        for i, data in enumerate(dataloader, 0):
             image0, image1, pair_label, label0, label1 = data
             pair_label = pair_label.type(torch.FloatTensor)
             image0, image1, pair_label = image0.cuda(), image1.cuda(), pair_label.cuda()
@@ -29,10 +59,12 @@ def train_loop(epoch_count, network, loss, dataset, dataloader):
             loss_contrastive.backward()
             optimizer.step()
 
-        print("Epoch number {}\n Current loss {}\n".format(epoch, loss_contrastive.item()))
-        iteration_number += 10
-        counter.append(iteration_number)
-        loss_history.append(loss_contrastive.item())
+
+            print("Epoch number {}\n Current loss {}\n".format(epoch, loss_contrastive.item()))
+            loss_history.append(loss_contrastive.item())
+
+
+    return loss_history
 
 
 
@@ -43,6 +75,11 @@ def main():
     elif platform.system() == 'Linux':
         path_t2_tra_np_min_max = './Data/t2_tra_np_min_max'
         path_diff_tra_ADC_BVAL_np_min_max = './Data/diff_ADC_BVAL_np_min_max'
+
+    images = os.listdir(path_diff_tra_ADC_BVAL_np_min_max)
+    random.shuffle(images)
+    train, test = train_test_split(images, test_size=0.2)
+
 
     """"
     images = os.listdir(path_t2_tra_np_min_max)
@@ -57,62 +94,27 @@ def main():
 
     """
 
+    train_dataset = datasets.SiameseNetworkDataset(path_diff_tra_ADC_BVAL_np_min_max, train, 2)
 
-    images = os.listdir(path_diff_tra_ADC_BVAL_np_min_max)
+    test_dataset = datasets.SiameseNetworkDataset(path_diff_tra_ADC_BVAL_np_min_max, test, 30)
 
-    dataset = datasets.SiameseNetworkDataset(path_diff_tra_ADC_BVAL_np_min_max, images)
-
-    dataset_loader = DataLoader(dataset, shuffle=1, num_workers=8, batch_size=16)
+    dataset_loader = DataLoader(train_dataset, shuffle=1, num_workers=8, batch_size=4)
 
     network = networks.Channel2SiameseNet().cuda()
 
     loss = loss_functions.ContrastiveLoss()
 
-    train_loop(150, network, loss, dataset, dataset_loader)
+    train_loop(10, network, loss, dataset_loader)
 
-    torch.save(network.state_dict(), './model')
-    """
-    
-    images = os.listdir(path_diff_tra_ADC_BVAL_np_min_max)
+    dataset_train_loader = DataLoader(train_dataset, shuffle=1, num_workers=8, batch_size=1)
+    dataset_test_loader = DataLoader(test_dataset, shuffle=1, num_workers=8, batch_size=1)
 
-    dataset = datasets.SiameseNetworkDataset(path_diff_tra_ADC_BVAL_np_min_max, images)
+    train_result = eval_loop(network, dataset_train_loader)
+    test_result = eval_loop(network, dataset_test_loader)
 
-    dataset_loader = DataLoader(dataset, shuffle=1, num_workers=8, batch_size=1)
-    
-    """
+    plot_result(train_result)
+    plot_result(test_result)
 
-    out_list = []
-
-    with torch.no_grad():
-        network = networks.Channel2SiameseNet().cuda()
-        network.load_state_dict(torch.load('./model'))
-        network.eval()
-        for img0, img1, pair_label, label0, label1 in dataset_loader:
-            img0, img1 = img0.cuda(), img1.cuda()
-            out1, out2 = network.forward(img0, img1)
-            out_list.append([out1.cpu().numpy(), out2.cpu().numpy(), label0.cpu().numpy(), label1.cpu().numpy()])
-
-
-    for item in out_list:
-        x0, y0 = zip(*item[0])
-        x1, y1 = zip(*item[1])
-        label0 = item[2][0]
-        label1 = item[3][0]
-
-        if label0 == 0:
-            point0 = 'bo'
-        else:
-            point0 = 'ro'
-
-        if label1 == 0:
-            point1 = 'bo'
-        else:
-            point1 = 'ro'
-
-        plt.plot(x0, y0, point0)
-        plt.plot(x1, y1, point1)
-
-    plt.show()
 
 if __name__ == "__main__":
     main()
