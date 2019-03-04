@@ -44,20 +44,23 @@ class Channel2SiameseNet(nn.Module):
         super(Channel2SiameseNet, self).__init__()
         self.cnn1 = nn.Sequential(
             nn.ReflectionPad2d(1),
-            nn.Conv2d(2, 4, kernel_size=5),
+            nn.Conv2d(2, 4, kernel_size=3),
             nn.ReLU(inplace=True),
+            nn.BatchNorm2d(4),
 
             nn.ReflectionPad2d(1),
             nn.Conv2d(4, 8, kernel_size=3),
             nn.ReLU(inplace=True),
+            nn.BatchNorm2d(8),
 
             nn.ReflectionPad2d(1),
-            nn.Conv2d(8, 16, kernel_size=3),
+            nn.Conv2d(8, 8, kernel_size=3),
             nn.ReLU(inplace=True),
+            nn.BatchNorm2d(8),
         )
 
         self.fc1 = nn.Sequential(
-            nn.Linear(3136, 512),
+            nn.Linear(8 * 16 * 16, 512),
             nn.ReLU(inplace=True),
 
             nn.Linear(512, 2))

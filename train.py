@@ -60,21 +60,16 @@ def train_loop(epoch_count, network, loss, dataloader):
             optimizer.step()
 
 
-            print("Epoch number {}\n Current loss {}\n".format(epoch, loss_contrastive.item()))
-            loss_history.append(loss_contrastive.item())
-
+        print("Epoch number {}\n Current loss {}\n".format(epoch, loss_contrastive.item()))
+        loss_history.append(loss_contrastive.item())
 
     return loss_history
 
 
 
 def main():
-    if platform.system() == 'Windows':
-        path_t2_tra_np_min_max = '.\Data\\t2_tra_np_min_max'
-        path_diff_tra_ADC_BVAL_np_min_max = '.\Data\\diff_ADC_BVAL_np_min_max'
-    elif platform.system() == 'Linux':
-        path_t2_tra_np_min_max = './Data/t2_tra_np_min_max'
-        path_diff_tra_ADC_BVAL_np_min_max = './Data/diff_ADC_BVAL_np_min_max'
+    path_t2_tra_np_min_max = './Data/t2_tra_np_min_max'
+    path_diff_tra_ADC_BVAL_np_min_max = './Data/diff_ADC_BVAL_np_min_max'
 
     images = os.listdir(path_diff_tra_ADC_BVAL_np_min_max)
     random.shuffle(images)
@@ -94,17 +89,17 @@ def main():
 
     """
 
-    train_dataset = datasets.SiameseNetworkDataset(path_diff_tra_ADC_BVAL_np_min_max, train, 2)
+    train_dataset = datasets.SiameseNetworkDataset(path_diff_tra_ADC_BVAL_np_min_max, train, 200)
 
-    test_dataset = datasets.SiameseNetworkDataset(path_diff_tra_ADC_BVAL_np_min_max, test, 30)
+    test_dataset = datasets.SiameseNetworkDataset(path_diff_tra_ADC_BVAL_np_min_max, test, 50)
 
-    dataset_loader = DataLoader(train_dataset, shuffle=1, num_workers=8, batch_size=4)
+    dataset_loader = DataLoader(train_dataset, shuffle=1, num_workers=8, batch_size=16)
 
     network = networks.Channel2SiameseNet().cuda()
 
     loss = loss_functions.ContrastiveLoss()
 
-    train_loop(10, network, loss, dataset_loader)
+    train_loop(30, network, loss, dataset_loader)
 
     dataset_train_loader = DataLoader(train_dataset, shuffle=1, num_workers=8, batch_size=1)
     dataset_test_loader = DataLoader(test_dataset, shuffle=1, num_workers=8, batch_size=1)
