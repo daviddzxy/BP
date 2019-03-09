@@ -161,11 +161,18 @@ def main():
     findings = findings[['ProxID', 'pos', 'fid', 'ClinSig', 'zone']]
     images = images[['ProxID', 'pos', 'Name', 'fid', 'ijk', 'Dim', 'DCMSerDescr', 'DCMSerNum']]
     combined_df = pd.merge(images, findings, how='left', left_on=['ProxID', 'fid', 'pos'], right_on=['ProxID', 'fid', 'pos'])
-    combined_df = combined_df[(combined_df.ProxID != 'ProstateX-0052') | (combined_df.ProxID != 'ProstateX-0025') | (combined_df.ProxID != 'ProstateX-0148')]
+    combined_df = combined_df[(combined_df.ProxID != 'ProstateX-0052') & (combined_df.ProxID != 'ProstateX-0025') & (combined_df.ProxID != 'ProstateX-0148')]
+    #combined_df = combined_df[(combined_df.DCMSerDescr == 'ep2d_diff_tra_DYNDIST_ADC') | (combined_df.DCMSerDescr == 'ep2d_diff_tra_DYNDISTCALC_BVAL')]
+    combined_df = combined_df[(combined_df.DCMSerDescr == 't2_tse_tra')]
+
+    combined_df = combined_df[combined_df.zone == 'PZ']
+
+    del images
+    del findings
 
     process_t2_tra_2D(combined_df, path_t2_tra_np, path_t2_tra_pic)
-    process_diff_tra_2D(combined_df, path_diff_tra_ADC_BVAL_np, path_diff_tra_ADC_BVAL_pic)
-    process_diff_tra_3D(combined_df, path_t2_tra_3D_np)
+    #process_diff_tra_2D(combined_df, path_diff_tra_ADC_BVAL_np, path_diff_tra_ADC_BVAL_pic)
+    #process_diff_tra_3D(combined_df, path_t2_tra_3D_np)
 
 
 if __name__ == '__main__':

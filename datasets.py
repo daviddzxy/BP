@@ -24,7 +24,6 @@ class SiameseNetworkDataset(Dataset):
 
     def __getitem__(self, index):
         img0, img1, pair_label = self.pairs.__getitem__(index)
-
         img_data0 = np.load(os.path.join(self.data_file, img0))
         img_data1 = np.load(os.path.join(self.data_file, img1))
 
@@ -52,7 +51,6 @@ class SiameseNetworkDataset(Dataset):
             self.pairs.append([random.choice(self.negative_images), random.choice(self.negative_images), 0])
             self.pairs.append([random.choice(self.positive_images), random.choice(self.positive_images), 0])
             self.pairs.append([random.choice(self.negative_images), random.choice(self.positive_images), 1])
-            self.pairs.append([random.choice(self.positive_images), random.choice(self.negative_images), 1])
 
         random.shuffle(self.pairs)
 

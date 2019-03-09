@@ -4,26 +4,37 @@ class SiameseNet(nn.Module):
     def __init__(self):
         super(SiameseNet, self).__init__()
         self.cnn1 = nn.Sequential(
+            nn.ReflectionPad2d(1),
             nn.Conv2d(1, 4, kernel_size=3),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(4),
 
+            nn.ReflectionPad2d(1),
             nn.Conv2d(4, 8, kernel_size=3),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(8),
 
-            nn.Conv2d(8, 8, kernel_size=3),
+            nn.ReflectionPad2d(1),
+            nn.Conv2d(8, 12, kernel_size=3),
             nn.ReLU(inplace=True),
-            nn.BatchNorm2d(8),
+            nn.BatchNorm2d(12),
+
+            nn.ReflectionPad2d(1),
+            nn.Conv2d(12, 12, kernel_size=3),
+            nn.ReLU(inplace=True),
+            nn.BatchNorm2d(12),
+
 
         )
 
         self.fc1 = nn.Sequential(
-            nn.Linear(8 * 10 * 10, 500),
+            nn.Linear(12 * 16 * 16, 500),
             nn.ReLU(inplace=True),
+            nn.BatchNorm1d(500),
 
             nn.Linear(500, 500),
             nn.ReLU(inplace=True),
+            nn.BatchNorm1d(500),
 
             nn.Linear(500, 2))
 

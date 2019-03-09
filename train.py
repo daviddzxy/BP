@@ -26,26 +26,8 @@ def eval_loop(network, dataloader):
 
     return out_list
 
-
-def plot_result(result_list):
-    for item in result_list:
-        x0, y0 = zip(*item[0])
-        x1, y1 = zip(*item[1])
-        label0 = item[2][0]
-        label1 = item[3][0]
-
-        point0 = 'co' if label0 == 0 else 'bo'
-        point1 = 'co' if label1 == 0 else 'bo'
-
-        plt.xlabel('dim1')
-        plt.ylabel('dim2')
-        plt.plot(x0, y0, point0)
-        plt.plot(x1, y1, point1)
-
-    plt.show()
-
 def train_loop(epoch_count, network, loss, dataloader):
-    optimizer = optim.Adam(network.parameters(), lr=0.0001)
+    optimizer = optim.Adam(network.parameters(), lr=0.00005)
 
     loss_history = []
 
@@ -67,11 +49,32 @@ def train_loop(epoch_count, network, loss, dataloader):
 
 
 
+def plot_result(result_list):
+    for item in result_list:
+        x0, y0 = zip(*item[0])
+        x1, y1 = zip(*item[1])
+        label0 = item[2][0]
+        label1 = item[3][0]
+
+        point0 = 'co' if label0 == 0 else 'bo'
+        point1 = 'co' if label1 == 0 else 'bo'
+
+        plt.xlabel('dim1')
+        plt.ylabel('dim2')
+        plt.plot(x0, y0, point0)
+        plt.plot(x1, y1, point1)
+
+    plt.show()
+
+
+
+
 def main():
     path_t2_tra_np_min_max = './Data/t2_tra_np_min_max'
     path_diff_tra_ADC_BVAL_np_min_max = './Data/diff_ADC_BVAL_np_min_max'
 
-    images = os.listdir(path_diff_tra_ADC_BVAL_np_min_max)
+    images = os.listdir(path_t2_tra_np_min_max)
+    #images = os.listdir(path_diff_tra_ADC_BVAL_np_min_max)
     random.shuffle(images)
     train, test = train_test_split(images, test_size=0.2)
 
@@ -89,17 +92,20 @@ def main():
 
     """
 
-    train_dataset = datasets.SiameseNetworkDataset(path_diff_tra_ADC_BVAL_np_min_max, train, 200)
+    #train_dataset = datasets.SiameseNetworkDataset(path_diff_tra_ADC_BVAL_np_min_max, train, 50)
+    #test_dataset = datasets.SiameseNetworkDataset(path_diff_tra_ADC_BVAL_np_min_max, test, 15)
 
-    test_dataset = datasets.SiameseNetworkDataset(path_diff_tra_ADC_BVAL_np_min_max, test, 50)
+    train_dataset = datasets.SiameseNetworkDataset(path_t2_tra_np_min_max, train, 50)
+    test_dataset = datasets.SiameseNetworkDataset(path_t2_tra_np_min_max, test, 15)
 
-    dataset_loader = DataLoader(train_dataset, shuffle=1, num_workers=8, batch_size=16)
+    dataset_loader = DataLoader(train_dataset, shuffle=1, num_workers=8, batch_size=8)
 
-    network = networks.Channel2SiameseNet().cuda()
+    #network = networks.Channel2SiameseNet().cuda()
+    network = networks.SiameseNet().cuda()
 
     loss = loss_functions.ContrastiveLoss()
 
-    train_loop(30, network, loss, dataset_loader)
+    train_loop(120, network, loss, dataset_loader)
 
     dataset_train_loader = DataLoader(train_dataset, shuffle=1, num_workers=8, batch_size=1)
     dataset_test_loader = DataLoader(test_dataset, shuffle=1, num_workers=8, batch_size=1)
