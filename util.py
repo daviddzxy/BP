@@ -37,11 +37,16 @@ def _get_volume(dicom_files):
     pixel_array = np.array(pixel_array, dtype=np.float32)
     return pixel_array
 
-def _extract_region(volume, coordinates, patch_size):
+def _extract_region(volume, coordinates, patch_size = None):
     assert volume.ndim == 3
-    return volume[coordinates[2], coordinates[1] - (patch_size // 2):coordinates[1] + (patch_size // 2),
-           coordinates[0] - (patch_size // 2):coordinates[0] + (patch_size // 2)]
+    if patch_size is not None:
+        patch = volume[coordinates[2], coordinates[1] - (patch_size // 2):coordinates[1] + (patch_size // 2),
+                coordinates[0] - (patch_size // 2):coordinates[0] + (patch_size // 2)]
+        assert patch.shape[0] == patch_size and patch.shape[1] == patch_size
+    else:
+        patch = volume[coordinates[2], :, :]
 
+    return patch
 
 def main():
     path_t2_tra_pic = './Data/t2_tra_pic'
@@ -59,7 +64,6 @@ def main():
     #combined_df = combined_df[(combined_df.DCMSerDescr == 'ep2d_diff_tra_DYNDIST_ADC') | (combined_df.DCMSerDescr == 'ep2d_diff_tra_DYNDISTCALC_BVAL')]
     #combined_df = combined_df[(combined_df.DCMSerDescr == 't2_tse_tra')]
     #combined_df = combined_df[combined_df.zone == 'PZ']
-
     del images
     del findings
 
@@ -71,20 +75,21 @@ def main():
             coordinates = list(map(int, row.ijk.split()))
             #3D
             volume = _get_volume(slices)
-            np.save(os.path.join(path_t2_tra_3D_np, name), volume)
+            #np.save(os.path.join(path_t2_tra_3D_np, name), volume)
             #2D
-            patch = _extract_region(volume, coordinates, 16)
+            patch = _extract_region(volume, coordinates, 50)
             #make one channel image with shape of [channels, y, x]
+            pylab.imsave(os.path.join(path_t2_tra_pic, name) + '.tiff', _extract_region(volume, coordinates), cmap=pylab.cm.gist_gray)
             patch = np.transpose(patch[:, :, np.newaxis], (2, 1, 0))
             np.save(os.path.join(path_t2_tra_np, name), patch)
-            pylab.imsave(os.path.join(path_t2_tra_pic, name) + '.tiff', patch)
 
     combined_ADC = combined_df[(combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_ADC') | (combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_MIX_ADC')]
     combined_BVAL = combined_df[(combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDISTCALC_BVAL') | (combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_MIXCALC_BVAL')]
     combined_diff = pd.merge(combined_ADC, combined_BVAL, how='left', left_on=['ProxID', 'fid', 'pos', 'ijk', 'Dim', 'zone', 'ClinSig'], right_on=['ProxID', 'fid', 'pos', 'ijk', 'Dim', 'zone', 'ClinSig'])
+    combined_diff = combined_diff[combined_diff.ProxID != 'ProstateX-0154']
     for index, row in combined_diff.iterrows():
         slices_ADC = _find_slices(row.ProxID, row.DCMSerNum_x, 'diff_ADC')
-        slices_BVAL = _find_slices(row.ProxID, row.DCMSerNum_x, 'diff_BVAL')
+        slices_BVAL = _find_slices(row.ProxID, row.DCMSerNum_y, 'diff_BVAL')
         if slices_ADC is not None and slices_BVAL is not None:
             coordinates = list(map(int, row.ijk.split()))
             name = str(row.ClinSig) + ' ' + str(row.ProxID) + " IJK " + str(row.ijk)
@@ -96,7 +101,8 @@ def main():
             patch_BVAL = np.transpose(patch_BVAL[:, :, np.newaxis], (2, 1, 0))
             patch_stack = np.stack([patch_ADC, patch_BVAL])
             np.save(os.path.join(path_diff_tra_ADC_BVAL_np, name), patch_stack)
-            pylab.imsave(os.path.join(path_diff_tra_ADC_BVAL_pic, name) + '.tiff', patch_stack)
+            pylab.imsave(os.path.join(path_diff_tra_ADC_BVAL_pic, name) + '.tiff',
+                         _extract_region(volume_BVAL,coordinates), cmap=pylab.cm.gist_gray)
 
 
 if __name__ == '__main__':
