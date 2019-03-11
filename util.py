@@ -34,8 +34,7 @@ def _get_volume(dicom_files):
     for dicom_slice in dicom_slices:
         pixel_array.append(dicom_slice.pixel_array)
 
-    pixel_array = np.array(pixel_array, dtype=np.float32)
-    return pixel_array
+    return np.array(pixel_array, dtype=np.float32)
 
 def _extract_region(volume, coordinates, patch_size = None):
     assert volume.ndim == 3
