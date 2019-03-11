@@ -9,9 +9,7 @@ def _find_slices(prox_id, dcm_num, modality):
     root = os.path.join('..', 'Dataset_PROSTATEX', 'PROSTATEx DICOM', str(prox_id))
     study_dir = os.listdir(root)  # 'D:\BP\Dataset_PROSTATEX\PROSTATEx DICOM\ProstateX-0000\'
     if len(study_dir) > 1:
-        print("Viac studii Error")
-        print("ProxID: " + str(prox_id))
-        print("DCMNum: " + str(dcm_num))
+        print("More studies: ProxID {}, DCMNum {}\n".format(prox_id, dcm_num))
         return None
 
     subdir = os.path.join(root, study_dir[0])
@@ -97,7 +95,7 @@ def main():
             patch_ADC = np.transpose(patch_ADC[:, :, np.newaxis], (2, 1, 0))
             patch_BVAL = np.transpose(patch_BVAL[:, :, np.newaxis], (2, 1, 0))
             patch_stack = np.stack([patch_ADC, patch_BVAL])
-            np.save(os.path.join(path_diff_tra_ADC_BVAL_pic, name), patch_stack)
+            np.save(os.path.join(path_diff_tra_ADC_BVAL_np, name), patch_stack)
             pylab.imsave(os.path.join(path_diff_tra_ADC_BVAL_pic, name) + '.tiff', patch_stack)
 
 
