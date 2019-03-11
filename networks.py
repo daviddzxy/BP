@@ -1,8 +1,20 @@
 from torch import nn
 
+
 class SiameseNet(nn.Module):
     def __init__(self):
         super(SiameseNet, self).__init__()
+
+    def forward_once(self, x):
+        pass
+
+    def forward(self, input1, input2):
+        pass
+
+
+class Channel1SiameseNet(SiameseNet):
+    def __init__(self):
+        super(Channel1SiameseNet, self).__init__()
         self.cnn1 = nn.Sequential(
             nn.ReflectionPad2d(1),
             nn.Conv2d(1, 4, kernel_size=3),
@@ -50,7 +62,7 @@ class SiameseNet(nn.Module):
         return output1, output2
 
 
-class Channel2SiameseNet(nn.Module):
+class Channel2SiameseNet(SiameseNet):
     def __init__(self):
         super(Channel2SiameseNet, self).__init__()
         self.cnn1 = nn.Sequential(
