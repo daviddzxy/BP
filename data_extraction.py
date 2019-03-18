@@ -6,32 +6,6 @@ import scipy.ndimage
 import pylab
 
 
-def load(path):
-    result_list = []
-    data_paths = os.listdir(path)
-    data_paths = [os.path.join(path, data_path) for data_path in data_paths]
-    for path in data_paths:
-        numpy_array = np.load(path)
-        result_list.append([numpy_array, path])
-
-    return result_list
-
-
-def save(data, path, name):
-    np.save(os.path.join(path, name), data)
-
-
-def scaling_0_1(data, mode='2D'):
-    assert data.ndim == 4
-    if mode == '2D':
-        for i in range(data.shape[1]):
-            data[:, i, :, :] = (data[:, i, :, :] - data[:, i, :, :].min()) /\
-                               (data[:, i, :, :].max() - data[:, i, :, :].min())
-    elif mode == '3D':
-        data = (data - data.min()) / (data.max() - data.min())
-    return data
-
-
 def find_slices(prox_id, dcm_num, modality):
     dicom_files = []
     root = os.path.join('..', 'Dataset_PROSTATEX', 'PROSTATEx DICOM', str(prox_id))
@@ -115,12 +89,8 @@ def main():
     del images
     del findings
 
-    t2_slices = []
-    t2_slices_path = []
-    t2_volumes = []
-
-
     combined_t2 = combined_df[combined_df['DCMSerDescr'] == 't2_tse_tra']
+    # combined_t2 = combined_t2[combined_t2.ProxID == 'ProstateX-0001']
     for index, row in combined_t2.iterrows():
         slices = find_slices(row.ProxID, row.DCMSerNum, 't2_tra')
         if slices is not None:
@@ -135,13 +105,11 @@ def main():
             # 2D
             patch = extract_region(volume, coordinates)
             # make one channel image with shape of [channels, y, x]
-            pylab.imsave(os.path.join(path_t2_tra_pic, name) + '.tiff', extract_region(volume, coordinates), cmap=pylab.cm.gist_gray)
+            # pylab.imsave(os.path.join(path_t2_tra_pic, name) + '.tiff', extract_region(volume, coordinates), cmap=pylab.cm.gist_gray)
             patch = patch[np.newaxis, :, :]
-            # np.save(os.path.join(path_t2_tra_np, name), patch)
-            t2_slices.append(patch)
-            t2_slices_path.append(os.path.join(path_t2_tra_np, name))
-
-    
+            print(name)
+            assert patch.ndim == 3
+            np.save(os.path.join(path_t2_tra_np, name), patch)
 
 
     # combined_ADC = combined_df[(combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_ADC') | (combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_MIX_ADC')]
