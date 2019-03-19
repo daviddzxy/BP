@@ -26,6 +26,7 @@ def eval_loop(network, dataloader):
 
     return out_list
 
+
 def train_loop(epoch_count, network, loss, dataloader):
     optimizer = optim.Adam(network.parameters(), lr=0.00005)
 
@@ -101,11 +102,11 @@ def main():
     dataset_loader = DataLoader(train_dataset, shuffle=1, num_workers=8, batch_size=8)
 
     #network = networks.Channel2SiameseNet().cuda()
-    network = networks.SiameseNet().cuda()
+    network = networks.Channel1SiameseNet().cuda()
 
     loss = loss_functions.ContrastiveLoss()
 
-    train_loop(120, network, loss, dataset_loader)
+    train_loop(50, network, loss, dataset_loader)
 
     dataset_train_loader = DataLoader(train_dataset, shuffle=1, num_workers=8, batch_size=1)
     dataset_test_loader = DataLoader(test_dataset, shuffle=1, num_workers=8, batch_size=1)

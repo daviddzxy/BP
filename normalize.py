@@ -12,43 +12,45 @@ def load(path):
     return result_list
 
 
-def scaling_0_1(data_list: list, mode='2D'):
+def scaling_0_1(data, mode='2D'):
     if mode == '2D':
-        for img in data_list:
-            for cnl in range(img.shape[0]):
-                img = (img[cnl, :, :] - img[cnl, :, :].min()) / (img[cnl, :, :].max() - img[cnl, :, :].min())
+        for cnl in range(data.shape[0]):
+            data[cnl, :, :] = (data[cnl, :, :] - data[cnl, :, :].min()) / (data[cnl, :, :].max() - data[cnl, :, :].min())
     elif mode == '3D':
-        for img in data_list:
-            img = (img - img.min()) / (img.max() - img.min())
+        data = (data - data.min()) / (data.max() - data.min())
 
-    return data_list
+    return data
 
 
-def scaling_z_score(data_list : list, mode='2D'):
+def scaling_z_score(data, mode='2D'):
     if mode == '2D':
-        for img in data_list:
-            for cnl in range(img.shape[0]):
-                img = (img[cnl, :, :] - img[cnl, :, :].mean()) / img[cnl, :, :].std()
-    elif mode == '2D':
-        for img in data_list:
-            img = (img - img.mean()) / img.std()
+        for cnl in range(data.shape[0]):
+            data[cnl, :, :] = (data[cnl, :, :] - data[cnl, :, :].mean()) / data[cnl, :, :].std()
+    elif mode == '3D':
+        data = (data - data.mean()) / data.std()
 
-    return data_list
+    return data
 
 
 def main():
     path_t2_tra_3D_np = './Data/t2_tra_np_3D'
     path_t2_tra_np = './Data/t2_tra_np'
     path_t2_tra_np_min_max = './Data/t2_tra_np_min_max'
+    path_t2_tra_np_3D_min_max = './Data/t2_tra_np_3D_min_max'
     path_diff_tra_ADC_BVAL_np = './Data/diff_ADC_BVAL_np'
     path_diff_tra_ADC_BVAL_np_min_max = './Data/diff_ADC_BVAL_np_min_max'
 
     t2_data_path_list = load(path_t2_tra_np)
     data_list, path_list = list(map(list, zip(*t2_data_path_list)))
-
-    data_list = scaling_z_score(data_list)
     for data, path in zip(data_list, path_list):
+        data = scaling_z_score(data)
         np.save(os.path.join(path_t2_tra_np_min_max, path.rsplit(os.sep, 1)[1]), data)
+
+    t2_3D_data_path_list = load(path_t2_tra_3D_np)
+    data_list, path_list = list(map(list, zip(*t2_3D_data_path_list)))
+    for data, path in zip(data_list, path_list):
+        data = scaling_z_score(data, '3D')
+        np.save(os.path.join(path_t2_tra_np_3D_min_max, path.rsplit(os.sep, 1)[1]), data)
 
     # diff_tra_path_list = load(path_diff_tra_ADC_BVAL_np)
     # data_list, path_list = list(map(list, zip(*diff_tra_path_list)))

@@ -39,16 +39,34 @@ def get_volume(dicom_files):
     return np.array(pixel_array, dtype=np.float32)
 
 
-def extract_region(volume, coordinates, patch_size=None):
-    assert volume.ndim == 3
-    if patch_size is not None:
-        patch = volume[coordinates[2], coordinates[1] - (patch_size // 2):coordinates[1] + (patch_size // 2),
-                coordinates[0] - (patch_size // 2):coordinates[0] + (patch_size // 2)]
-        assert patch.shape[0] == patch_size and patch.shape[1] == patch_size
-    else:
-        patch = volume[coordinates[2], :, :]
 
+def extract_region(volume, coordinates, patch_size=None, depth=None, mode='2D'):
+    # depth should be odd number
+    assert volume.ndim == 3
+    if mode == '2D':
+        if patch_size is not None:
+            patch = volume[coordinates[2], coordinates[1] - (patch_size // 2):coordinates[1] + (patch_size // 2),
+                    coordinates[0] - (patch_size // 2):coordinates[0] + (patch_size // 2)]
+            assert patch.shape[0] == patch_size and patch.shape[1] == patch_size
+        else:
+            patch = volume[coordinates[2], :, :]
+    elif mode == '3D':
+        assert patch_size is not None and depth is not None
+        check_bot = coordinates[2] - depth // 2
+        check_top = coordinates[2] + depth // 2 + 1
+        over_top = 0
+        over_bot = 0
+        if check_bot < 0:
+            over_bot = abs(check_bot)
+        elif check_top > volume.shape[0]:
+            over_top = check_top - volume.shape[0]
+
+        patch = volume[(coordinates[2] - depth // 2) + over_bot - over_top:((coordinates[2] + depth // 2) + 1) + over_bot - over_top,
+                    coordinates[1] - (patch_size // 2):coordinates[1] + (patch_size // 2),
+                    coordinates[0] - (patch_size // 2):coordinates[0] + (patch_size // 2)]
+        assert patch.shape[0] == depth and patch.shape[1] == patch_size and patch.shape[2] == patch_size
     return patch
+
 
 def resample(image, curr_spacing, new_spacing):
     if not np.array_equal(curr_spacing, new_spacing):
@@ -103,13 +121,14 @@ def main():
             name = str(row.ClinSig) + " FID " + str(row.fid) + ' ' + str(row.ProxID) + " IJK " + str(coordinates) + " DCM " + str(row.DCMSerNum)
             # np.save(os.path.join(path_t2_tra_3D_np, name), volume)
             # 2D
-            patch = extract_region(volume, coordinates)
+            patch_3D = extract_region(volume, coordinates, 16, 5, '3D')
+            patch_2D = extract_region(volume, coordinates, 16)
             # make one channel image with shape of [channels, y, x]
             # pylab.imsave(os.path.join(path_t2_tra_pic, name) + '.tiff', extract_region(volume, coordinates), cmap=pylab.cm.gist_gray)
-            patch = patch[np.newaxis, :, :]
+            patch_2D = patch_2D[np.newaxis, :, :]
             print(name)
-            assert patch.ndim == 3
-            np.save(os.path.join(path_t2_tra_np, name), patch)
+            np.save(os.path.join(path_t2_tra_np, name), patch_2D)
+            np.save(os.path.join(path_t2_tra_3D_np, name), patch_3D)
 
 
     # combined_ADC = combined_df[(combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_ADC') | (combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_MIX_ADC')]

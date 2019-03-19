@@ -35,9 +35,7 @@ class Channel1SiameseNet(SiameseNet):
             nn.Conv2d(12, 12, kernel_size=3),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(12),
-
-
-        )
+       )
 
         self.fc1 = nn.Sequential(
             nn.Linear(12 * 16 * 16, 500),
