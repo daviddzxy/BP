@@ -121,8 +121,8 @@ def main():
             name = str(row.ClinSig) + " FID " + str(row.fid) + ' ' + str(row.ProxID) + " IJK " + str(coordinates) + " DCM " + str(row.DCMSerNum)
             # np.save(os.path.join(path_t2_tra_3D_np, name), volume)
             # 2D
-            patch_3D = extract_region(volume, coordinates, 16, 5, '3D')
-            patch_2D = extract_region(volume, coordinates, 16)
+            patch_3D = extract_region(volume, coordinates, 24, 5, '3D')
+            patch_2D = extract_region(volume, coordinates, 24)
             # make one channel image with shape of [channels, y, x]
             # pylab.imsave(os.path.join(path_t2_tra_pic, name) + '.tiff', extract_region(volume, coordinates), cmap=pylab.cm.gist_gray)
             patch_2D = patch_2D[np.newaxis, :, :]
