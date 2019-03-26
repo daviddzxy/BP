@@ -123,39 +123,37 @@ def main():
             # 2D
             patch_3D = extract_region(volume, coordinates, 24, 5, '3D')
             patch_2D = extract_region(volume, coordinates, 24)
+            patch_3D = patch_3D[np.newaxis, :, :, :]
             # make one channel image with shape of [channels, y, x]
             # pylab.imsave(os.path.join(path_t2_tra_pic, name) + '.tiff', extract_region(volume, coordinates), cmap=pylab.cm.gist_gray)
             patch_2D = patch_2D[np.newaxis, :, :]
-            print(name)
             np.save(os.path.join(path_t2_tra_np, name), patch_2D)
             np.save(os.path.join(path_t2_tra_3D_np, name), patch_3D)
 
 
-    # combined_ADC = combined_df[(combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_ADC') | (combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_MIX_ADC')]
-    # combined_BVAL = combined_df[(combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDISTCALC_BVAL') | (combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_MIXCALC_BVAL')]
-    # combined_diff = pd.merge(combined_ADC, combined_BVAL, how='left', left_on=['ProxID', 'fid', 'pos', 'ijk', 'Dim', 'zone', 'ClinSig'], right_on=['ProxID', 'fid', 'pos', 'ijk', 'Dim', 'zone', 'ClinSig'])
-    # combined_diff = combined_diff[combined_diff.ProxID != 'ProstateX-0154']
-    # for index, row in combined_diff.iterrows():
-    #     slices_ADC = find_slices(row.ProxID, row.DCMSerNum_x, 'diff_ADC')
-    #     slices_BVAL = find_slices(row.ProxID, row.DCMSerNum_y, 'diff_BVAL')
-    #     if slices_ADC is not None and slices_BVAL is not None:
-    #         voxel_spacing = np.array([float(x) for x in row.VoxelSpacing_x.split(',')])
-    #         coordinates = np.array(list(map(int, row.ijk.split())))
-    #         volume_ADC = get_volume(slices_ADC)
-    #         volume_BVAL = get_volume(slices_BVAL)
-    #         volume_ADC, factor_ADC = resample(volume_ADC, voxel_spacing, diff_spacing)
-    #         volume_BVAL, factor_BVAL = resample(volume_BVAL, voxel_spacing, diff_spacing)
-    #         assert np.array_equal(factor_BVAL, factor_ADC)
-    #         coordinates = np.floor(coordinates * factor_ADC).astype(int)
-    #         name = str(row.ClinSig) + " FID " + str(row.fid) + ' ' + str(row.ProxID) + " IJK " + str(coordinates) + " DCM " + str(row.DCMSerNum_x)
-    #         patch_ADC = extract_region(volume_ADC, coordinates, 16)
-    #         patch_BVAL = extract_region(volume_BVAL, coordinates, 16)
-    #         patch_ADC = patch_ADC[np.newaxis :, :]
-    #         patch_BVAL = patch_BVAL[np.newaxis :, :]
-    #         patch_stack = np.stack([patch_ADC, patch_BVAL])
-    #         np.save(os.path.join(path_diff_tra_ADC_BVAL_np, name), patch_stack)
-    #         pylab.imsave(os.path.join(path_diff_tra_ADC_BVAL_pic, name) + '.tiff',
-    #                      extract_region(volume_ADC, coordinates), cmap=pylab.cm.gist_gray)
+    combined_ADC = combined_df[(combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_ADC') | (combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_MIX_ADC')]
+    combined_BVAL = combined_df[(combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDISTCALC_BVAL') | (combined_df['DCMSerDescr'] == 'ep2d_diff_tra_DYNDIST_MIXCALC_BVAL')]
+    combined_diff = pd.merge(combined_ADC, combined_BVAL, how='left', left_on=['ProxID', 'fid', 'pos', 'ijk', 'Dim', 'zone', 'ClinSig'], right_on=['ProxID', 'fid', 'pos', 'ijk', 'Dim', 'zone', 'ClinSig'])
+    combined_diff = combined_diff[combined_diff.ProxID != 'ProstateX-0154']
+    for index, row in combined_diff.iterrows():
+        slices_ADC = find_slices(row.ProxID, row.DCMSerNum_x, 'diff_ADC')
+        slices_BVAL = find_slices(row.ProxID, row.DCMSerNum_y, 'diff_BVAL')
+        if slices_ADC is not None and slices_BVAL is not None:
+            voxel_spacing = np.array([float(x) for x in row.VoxelSpacing_x.split(',')])
+            coordinates = np.array(list(map(int, row.ijk.split())))
+            volume_ADC = get_volume(slices_ADC)
+            volume_BVAL = get_volume(slices_BVAL)
+            volume_ADC, factor_ADC = resample(volume_ADC, voxel_spacing, diff_spacing)
+            volume_BVAL, factor_BVAL = resample(volume_BVAL, voxel_spacing, diff_spacing)
+            assert np.array_equal(factor_BVAL, factor_ADC)
+            coordinates = np.floor(coordinates * factor_ADC).astype(int)
+            name = str(row.ClinSig) + " FID " + str(row.fid) + ' ' + str(row.ProxID) + " IJK " + str(coordinates) + " DCM " + str(row.DCMSerNum_x)
+            patch_ADC = extract_region(volume_ADC, coordinates, 16)
+            patch_BVAL = extract_region(volume_BVAL, coordinates, 16)
+            patch_stack = np.stack([patch_ADC, patch_BVAL])
+            np.save(os.path.join(path_diff_tra_ADC_BVAL_np, name), patch_stack)
+            # pylab.imsave(os.path.join(path_diff_tra_ADC_BVAL_pic, name) + '.tiff',
+            #              extract_region(volume_ADC, coordinates), cmap=pylab.cm.gist_gray)
 
 
 if __name__ == '__main__':

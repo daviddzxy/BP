@@ -16,17 +16,17 @@ class Net3DChannel1(nn.Module):
     def __init__(self):
         super(Net3DChannel1, self).__init__()
         self.cnn1 = nn.Sequential(
-            nn.Conv3d(1, 4, kernel_size=3),
+            nn.Conv3d(1, 4, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
-            nn.BatchNorm2d(4),
+            nn.BatchNorm3d(4),
 
-            nn.Conv3d(4, 8, kernel_size=3),
+            nn.Conv3d(4, 8, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
-            nn.BatchNorm2d(8),
+            nn.BatchNorm3d(8),
 
-            nn.Conv3d(8, 12, kernel_size=3),
+            nn.Conv3d(8, 12, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
-            nn.BatchNorm2d(12),
+            nn.BatchNorm3d(12),
         )
 
         self.fc1 = nn.Sequential(
@@ -103,9 +103,8 @@ class Net2DChannel2(nn.Module):
             nn.BatchNorm2d(8),
         )
 
-
         self.fc1 = nn.Sequential(
-            nn.Linear(8 * 24 * 24, 512),
+            nn.Linear(8 * 16 * 16, 512),
             nn.ReLU(inplace=True),
             nn.BatchNorm1d(512),
 

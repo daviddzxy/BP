@@ -52,14 +52,11 @@ def main():
     for data, path in zip(data_list, path_list):
         np.save(os.path.join(path_t2_tra_np_3D_min_max, path.rsplit(os.sep, 1)[1]), data)
 
-    # diff_tra_path_list = load(path_diff_tra_ADC_BVAL_np)
-    # data_list, path_list = list(map(list, zip(*diff_tra_path_list)))
-    # data_list = np.array(data_list)
-    #
-    # data_list = scaling_z_score(data_list)
-    # data_list = scaling_0_1(data_list)
-    # for data, path in zip(data_list, path_list):
-    #     np.save(os.path.join(path_diff_tra_ADC_BVAL_np_min_max, path.rsplit(os.sep, 1)[1]), data)
+    diff_tra_path_list = load(path_diff_tra_ADC_BVAL_np)
+    data_list, path_list = list(map(list, zip(*diff_tra_path_list)))
+    data_list = scaling_z_score(np.array(data_list))
+    for data, path in zip(data_list, path_list):
+        np.save(os.path.join(path_diff_tra_ADC_BVAL_np_min_max, path.rsplit(os.sep, 1)[1]), data)
 
 
 if __name__ == '__main__':
