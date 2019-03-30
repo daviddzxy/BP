@@ -8,6 +8,7 @@ from numpy.linalg import norm
 from torch.utils.data import DataLoader
 from torch import optim
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 import networks
 import datasets
@@ -42,16 +43,14 @@ def predict_encoding(network, dataloader):
     labels = []
     with torch.no_grad():
         network.eval()
-        for img0, img1, pair_label, label0, label1 in dataloader:
-            img0, img1 = img0.cuda(), img1.cuda()
-            out1, out2 = network(img0, img1)
-            out1, out2 = out1.cpu(), out2.cpu()
-            out1, out2 = out1.numpy(), out2.numpy()
-            label0, label1 = label0.numpy(), label1.numpy()
-            encodings.extend(out1)
-            encodings.extend(out2)
-            labels.extend(label0)
-            labels.extend(label1)
+        for img, label in dataloader:
+            img = img.cuda()
+            out = network.get_encoding(img)
+            out = out.cpu()
+            out = out.numpy()
+            label = label.numpy()
+            encodings.extend(out)
+            labels.extend(label)
 
     return np.array(encodings), np.array(labels)
 
@@ -69,16 +68,21 @@ def fit(epoch_count, network, loss, dataloader, learning_rate):
             loss_contrastive.backward()
             optimizer.step()
 
-        print("Epoch no. {}\n \nCurrent loss {}\n".format(epoch, loss_contrastive.item()))
+            print("Epoch no. {}\nBatch {}\nCurrent loss {}\n".format(epoch, i, loss_contrastive.item()))
         loss_history.append(loss_contrastive.item())
 
     return loss_history
-
 
 def plot_results(encodings, labels):
     color = ['red' if l == 0 else 'blue' for l in labels]
     plt.scatter(encodings[:, 0], encodings[:,1], c=color)
     plt.show()
+
+def print_scores(labels, predicted_labels):
+    print("Accuracy: {}".format(accuracy_score(labels, predicted_labels)))
+    print("Precision: {}".format(precision_score(labels, predicted_labels)))
+    print("Recall: {}".format(recall_score(labels, predicted_labels)))
+    print("F1: {}".format(f1_score(labels, predicted_labels)))
 
 
 def plot_loss(loss_history):
@@ -93,25 +97,34 @@ def main():
     random.shuffle(images)
     train, test = train_test_split(images, test_size=0.2)
 
-    train_dataset = datasets.SiameseNetworkDataset(path_diff_tra_ADC_BVAL_np_min_max, train, 900)
-    test_dataset = datasets.SiameseNetworkDataset(path_diff_tra_ADC_BVAL_np_min_max, test, 40)
+    dataset_train = datasets.PairFeeding(path_diff_tra_ADC_BVAL_np_min_max, train)
+    dataset_train_eval = datasets.SingleFeeding(path_diff_tra_ADC_BVAL_np_min_max, train)
+    dataset_test_eval = datasets.SingleFeeding(path_diff_tra_ADC_BVAL_np_min_max, test)
 
-    dataset_loader_train = DataLoader(train_dataset, shuffle=1, num_workers=4, batch_size=2, drop_last=True)
-    dataset_loader_test = DataLoader(test_dataset, shuffle=1, num_workers=4, batch_size=2, drop_last=True)
+    dataloader_train = DataLoader(dataset_train, shuffle=1, num_workers=4, batch_size=64, drop_last=True)
+    dataloader_train_eval = DataLoader(dataset_train_eval, shuffle=1, num_workers=4, batch_size=64, drop_last=False)
+    dataloader_test_eval = DataLoader(dataset_test_eval, shuffle=1, num_workers=4, batch_size=64, drop_last=False)
 
     network = networks.SiameseNet(networks.Net3DChannel1()).cuda()
 
     loss = loss_functions.ContrastiveLoss()
 
-    loss_history = fit(50, network, loss, dataset_loader_train, 0.00005)
+    loss_history = fit(1, network, loss, dataloader_train, 0.00005)
 
     plot_loss(loss_history)
 
-    encodings, labels = predict_encoding(network, dataset_loader_train)
+    encodings, labels = predict_encoding(network, dataloader_train_eval)
     plot_results(encodings, labels)
 
-    encodings, labels = predict_label(network, dataset_loader_test)
+    encodings, labels = predict_encoding(network, dataloader_test_eval)
     plot_results(encodings, labels)
+
+    predicted_labels = []
+    for encoding, label in (zip(encodings, labels)):
+        predicted_labels.append(predict_label(encoding, encodings, labels, 3))
+
+    predicted_labels = np.array(predicted_labels)
+    print_scores(labels, predicted_labels)
 
 
 if __name__ == "__main__":
