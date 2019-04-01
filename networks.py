@@ -48,10 +48,10 @@ class Net3DChannel1(ConvNetwork):
             nn.ReLU(inplace=True),
             nn.BatchNorm1d(512),
 
-            nn.Linear(512, 512),
+            nn.Linear(512, 128),
             nn.ReLU(inplace=True),
-            nn.BatchNorm1d(512),
-            nn.Linear(512, 2)
+            nn.BatchNorm1d(128),
+            nn.Linear(128, 2)
         )
 
 
@@ -80,10 +80,10 @@ class Net2DChannel1(ConvNetwork):
             nn.ReLU(inplace=True),
             nn.BatchNorm1d(512),
 
-            nn.Linear(512, 512),
+            nn.Linear(512, 128),
             nn.ReLU(inplace=True),
-            nn.BatchNorm1d(512),
-            nn.Linear(512, 2)
+            nn.BatchNorm1d(128),
+            nn.Linear(128, 2)
         )
 
 
@@ -112,10 +112,10 @@ class Net2DChannel2(ConvNetwork):
             nn.ReLU(inplace=True),
             nn.BatchNorm1d(512),
 
-            nn.Linear(512, 512),
+            nn.Linear(512, 128),
             nn.ReLU(inplace=True),
-            nn.BatchNorm1d(512),
-            nn.Linear(512, 2)
+            nn.BatchNorm1d(128),
+            nn.Linear(128, 2)
         )
 
 
