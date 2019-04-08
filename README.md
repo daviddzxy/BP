@@ -1,1 +1,1 @@
-Repository made for my bachelor thesis, only for presentation purposes.
+Code of my bachelor thesis for presentation purposes.
