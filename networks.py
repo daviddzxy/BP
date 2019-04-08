@@ -55,6 +55,35 @@ class Net3DChannel1(ConvNetwork):
         )
 
 
+class Net3DChannel2(ConvNetwork):
+    def __init__(self):
+        super(Net3DChannel2, self).__init__()
+        self.cnn1 = nn.Sequential(
+            nn.Conv3d(2, 4, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.BatchNorm3d(4),
+
+            nn.Conv3d(4, 8, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.BatchNorm3d(8),
+
+            nn.Conv3d(8, 12, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.BatchNorm3d(12),
+        )
+
+        self.fc1 = nn.Sequential(
+            nn.Linear(46080, 512),
+            nn.ReLU(inplace=True),
+            nn.BatchNorm1d(512),
+
+            nn.Linear(512, 128),
+            nn.ReLU(inplace=True),
+            nn.BatchNorm1d(128),
+            nn.Linear(128, 2)
+        )
+
+
 class Net2DChannel1(ConvNetwork):
     def __init__(self):
         super(Net2DChannel1, self).__init__()

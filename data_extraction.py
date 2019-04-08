@@ -90,6 +90,7 @@ def main():
     path_t2_tra_3D_np = './Data/t2_tra_np_3D'
     path_diff_tra_ADC_BVAL_pic = './Data/diff_ADC_BVAL_pic'
     path_diff_tra_ADC_BVAL_np = './Data/diff_ADC_BVAL_np'
+    path_diff_tra_ADC_BVAL_3D_np = './Data/diff_ADC_BVAL_3D_np'
 
     t2_spacing = np.array([0.5, 0.5, 3])
     diff_spacing = np.array([2, 2, 3])
@@ -150,8 +151,12 @@ def main():
             name = str(row.ClinSig) + " FID " + str(row.fid) + ' ' + str(row.ProxID) + " IJK " + str(coordinates) + " DCM " + str(row.DCMSerNum_x)
             patch_ADC = extract_region(volume_ADC, coordinates, 16)
             patch_BVAL = extract_region(volume_BVAL, coordinates, 16)
+            patch_3D_ADC = extract_region(volume_ADC, coordinates, 16, 15, '3D')
+            patch_3D_BVAL = extract_region(volume_BVAL, coordinates, 16, 15, '3D')
+            patch_3D_stack = np.stack([patch_3D_ADC, patch_3D_BVAL])
             patch_stack = np.stack([patch_ADC, patch_BVAL])
             np.save(os.path.join(path_diff_tra_ADC_BVAL_np, name), patch_stack)
+            np.save(os.path.join(path_diff_tra_ADC_BVAL_3D_np, name), patch_3D_stack)
             # pylab.imsave(os.path.join(path_diff_tra_ADC_BVAL_pic, name) + '.tiff',
             #              extract_region(volume_ADC, coordinates), cmap=pylab.cm.gist_gray)
 
