@@ -108,7 +108,6 @@ def main():
     del findings
 
     combined_t2 = combined_df[combined_df['DCMSerDescr'] == 't2_tse_tra']
-    
     # combined_t2 = combined_t2[combined_t2.ProxID == 'ProstateX-0001']
     for index, row in combined_t2.iterrows():
         slices = find_slices(row.ProxID, row.DCMSerNum, 't2_tra')
