@@ -42,9 +42,9 @@ def normalize(data_path, save_path, type='z_score', mode = '2D'):
 
 
 def main():
-    path_t2_tra_3D_np = './Data/t2_tra_np_3D'
     path_t2_tra_np = './Data/t2_tra_np'
     path_t2_tra_np_min_max = './Data/t2_tra_np_min_max'
+    path_t2_tra_3D_np = './Data/t2_tra_np_3D'
     path_t2_tra_np_3D_min_max = './Data/t2_tra_np_3D_min_max'
     path_diff_tra_ADC_BVAL_np = './Data/diff_ADC_BVAL_np'
     path_diff_tra_ADC_BVAL_np_min_max = './Data/diff_ADC_BVAL_np_min_max'

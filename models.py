@@ -1,7 +1,6 @@
 import torch
 import numpy as np
 
-
 class Model():
     def __init__(self, epoch_count, learning_rate, network, loss_function):
         self.epoch_count = epoch_count
@@ -27,14 +26,14 @@ class SiameseModel(Model):
             for i, data in enumerate(dataloader, 0):
                 image0, image1, pair_label, label0, label1 = data
                 pair_label = pair_label.type(torch.FloatTensor)
-                image0, image1, pair_label = image0.cuda(), image1.cuda(), pair_label.cuda()
-                out1, out2 = self.network(image0, image1)
-                loss_contrastive = self.loss_function(out1, out2, pair_label)
+                out1, out2 = self.network(image0.cuda(), image1.cuda())
+                loss_contrastive = self.loss_function(out1, out2, pair_label.cuda())
                 loss_contrastive.backward()
                 optimizer.step()
 
-                print("Epoch no. {}\nBatch {}\nCurrent loss {}\n".format(epoch, i, loss_contrastive.item()))
-                loss_history.append(loss_contrastive.item())
+                #print("Epoch no. {}\nBatch {}\nCurrent loss {}\n".format(epoch, i, loss_contrastive.item()))
+                if i % 10 == 0:
+                    loss_history.append(loss_contrastive.item())
 
         return loss_history
 
@@ -43,11 +42,10 @@ class SiameseModel(Model):
         labels = []
         with torch.no_grad():
             self.network.eval()
-            for img, label in dataloader:
+            for img, label, path in dataloader:
                 img = img.cuda()
                 out = self.network.get_encoding(img)
-                out = out.cpu()
-                out = out.numpy()
+                out = out.cpu().numpy()
                 label = label.numpy()
                 encodings.extend(out)
                 labels.extend(label)

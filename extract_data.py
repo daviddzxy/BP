@@ -39,7 +39,6 @@ def get_volume(dicom_files):
     return np.array(pixel_array, dtype=np.float32)
 
 
-
 def extract_region(volume, coordinates, patch_size=None, depth=None, mode='2D'):
     # depth should be odd number
     assert volume.ndim == 3
@@ -109,6 +108,7 @@ def main():
     del findings
 
     combined_t2 = combined_df[combined_df['DCMSerDescr'] == 't2_tse_tra']
+    
     # combined_t2 = combined_t2[combined_t2.ProxID == 'ProstateX-0001']
     for index, row in combined_t2.iterrows():
         slices = find_slices(row.ProxID, row.DCMSerNum, 't2_tra')
@@ -120,7 +120,7 @@ def main():
             volume, factor = resample(volume, voxel_spacing, t2_spacing)
             coordinates = np.floor(coordinates * factor).astype(int)
             name = str(row.ClinSig) + " FID " + str(row.fid) + ' ' + str(row.ProxID) + " IJK " + str(coordinates) + " DCM " + str(row.DCMSerNum)
-            # np.save(os.path.join(path_t2_tra_3D_np, name), volume)
+            np.save(os.path.join(path_t2_tra_3D_np, name), volume)
             # 2D
             patch_3D = extract_region(volume, coordinates, 24, 5, '3D')
             patch_2D = extract_region(volume, coordinates, 24)

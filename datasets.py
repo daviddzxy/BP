@@ -57,6 +57,7 @@ class SiameseDataset(Dataset):
 
         return \
             torch.from_numpy(data).float(), \
+            path, \
             label
 
 

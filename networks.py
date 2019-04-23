@@ -131,13 +131,13 @@ class Net2DChannel2(ConvNetwork):
             nn.BatchNorm2d(8),
 
             nn.ReflectionPad2d(1),
-            nn.Conv2d(8, 8, kernel_size=3),
+            nn.Conv2d(8, 12, kernel_size=3),
             nn.ReLU(inplace=True),
-            nn.BatchNorm2d(8),
+            nn.BatchNorm2d(12),
         )
 
         self.fc1 = nn.Sequential(
-            nn.Linear(8 * 16 * 16, 512),
+            nn.Linear(12 * 16 * 16, 512),
             nn.ReLU(inplace=True),
             nn.BatchNorm1d(512),
 
