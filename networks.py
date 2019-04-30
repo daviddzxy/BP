@@ -38,13 +38,13 @@ class Net3DChannel1(ConvNetwork):
             nn.ReLU(inplace=True),
             nn.BatchNorm3d(8),
 
-            nn.Conv3d(8, 12, kernel_size=3, padding=1),
+            nn.Conv3d(8, 16, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
-            nn.BatchNorm3d(12),
+            nn.BatchNorm3d(16),
         )
 
         self.fc1 = nn.Sequential(
-            nn.Linear(12 * 5 * 24 * 24, 512),
+            nn.Linear(16 * 5 * 24 * 24, 512),
             nn.ReLU(inplace=True),
             nn.BatchNorm1d(512),
 
@@ -67,13 +67,13 @@ class Net3DChannel2(ConvNetwork):
             nn.ReLU(inplace=True),
             nn.BatchNorm3d(8),
 
-            nn.Conv3d(8, 12, kernel_size=3, padding=1),
+            nn.Conv3d(8, 16, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
-            nn.BatchNorm3d(12),
+            nn.BatchNorm3d(16),
         )
 
         self.fc1 = nn.Sequential(
-            nn.Linear(46080, 512),
+            nn.Linear(61440, 512),
             nn.ReLU(inplace=True),
             nn.BatchNorm1d(512),
 
@@ -89,23 +89,23 @@ class Net2DChannel1(ConvNetwork):
         super(Net2DChannel1, self).__init__()
         self.cnn1 = nn.Sequential(
             nn.ReflectionPad2d(1),
-            nn.Conv2d(1, 4, kernel_size=3),
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(4),
-
-            nn.ReflectionPad2d(1),
-            nn.Conv2d(4, 8, kernel_size=3),
+            nn.Conv2d(1, 8, kernel_size=3),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(8),
 
             nn.ReflectionPad2d(1),
-            nn.Conv2d(8, 12, kernel_size=3),
+            nn.Conv2d(8, 16, kernel_size=3),
             nn.ReLU(inplace=True),
-            nn.BatchNorm2d(12),
+            nn.BatchNorm2d(16),
+
+            nn.ReflectionPad2d(1),
+            nn.Conv2d(16, 32, kernel_size=3),
+            nn.ReLU(inplace=True),
+            nn.BatchNorm2d(32),
         )
 
         self.fc1 = nn.Sequential(
-            nn.Linear(12 * 24 * 24, 512),
+            nn.Linear(32 * 24 * 24, 512),
             nn.ReLU(inplace=True),
             nn.BatchNorm1d(512),
 
@@ -121,23 +121,23 @@ class Net2DChannel2(ConvNetwork):
         super(Net2DChannel2, self).__init__()
         self.cnn1 = nn.Sequential(
             nn.ReflectionPad2d(1),
-            nn.Conv2d(2, 4, kernel_size=3),
+            nn.Conv2d(2, 16, kernel_size=3),
             nn.ReLU(inplace=True),
-            nn.BatchNorm2d(4),
+            nn.BatchNorm2d(16),
 
             nn.ReflectionPad2d(1),
-            nn.Conv2d(4, 8, kernel_size=3),
+            nn.Conv2d(16, 32, kernel_size=3),
             nn.ReLU(inplace=True),
-            nn.BatchNorm2d(8),
+            nn.BatchNorm2d(32),
 
             nn.ReflectionPad2d(1),
-            nn.Conv2d(8, 12, kernel_size=3),
+            nn.Conv2d(32, 64, kernel_size=3),
             nn.ReLU(inplace=True),
-            nn.BatchNorm2d(12),
+            nn.BatchNorm2d(64),
         )
 
         self.fc1 = nn.Sequential(
-            nn.Linear(12 * 16 * 16, 512),
+            nn.Linear(64 * 16 * 16, 512),
             nn.ReLU(inplace=True),
             nn.BatchNorm1d(512),
 

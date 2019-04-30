@@ -37,10 +37,8 @@ class SiameseDataset(Dataset):
         path0, path1 = self.pairs.__getitem__(index)
         data0 = np.load(os.path.join(self.file_path, path0))
         data1 = np.load(os.path.join(self.file_path, path1))
-
         label0 = self._get_label(path0)
         label1 = self._get_label(path1)
-
         pair_label = 0 if label0 == label1 else 1
 
         return \
@@ -57,8 +55,8 @@ class SiameseDataset(Dataset):
 
         return \
             torch.from_numpy(data).float(), \
-            path, \
-            label
+            label, \
+            os.path.join(self.file_path, path)
 
 
 

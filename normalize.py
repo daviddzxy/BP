@@ -32,6 +32,7 @@ def scaling_z_score(data, mode='2D'):
             data[:, cnl, :, :, :] = (data[:, cnl, :, :, :] - data[:, cnl, :, :, :].mean()) / data[:, cnl, :, :, :].std()
     return data
 
+
 def normalize(data_path, save_path, type='z_score', mode = '2D'):
     normalization = scaling_z_score if type == 'z_score' else scaling_0_1
     data_path_list = load(data_path)

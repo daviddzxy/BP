@@ -20,8 +20,9 @@ class SiameseModel(Model):
         super(SiameseModel, self).__init__(epoch_count, learning_rate, network, loss_function)
 
     def fit(self, dataloader):
-        optimizer = torch.optim.Adam(self.network.parameters(), lr=self.learning_rate)
         loss_history = []
+        loss_sum = 0
+        optimizer = torch.optim.Adam(self.network.parameters(), lr=self.learning_rate)
         for epoch in range(0, self.epoch_count):
             for i, data in enumerate(dataloader, 0):
                 image0, image1, pair_label, label0, label1 = data
@@ -31,9 +32,12 @@ class SiameseModel(Model):
                 loss_contrastive.backward()
                 optimizer.step()
 
+                loss_sum = loss_contrastive.item() + loss_sum
                 #print("Epoch no. {}\nBatch {}\nCurrent loss {}\n".format(epoch, i, loss_contrastive.item()))
                 if i % 10 == 0:
-                    loss_history.append(loss_contrastive.item())
+                    loss = loss_sum / 10
+                    loss_history.append(loss)
+                    loss_sum = 0
 
         return loss_history
 
