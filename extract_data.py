@@ -7,6 +7,13 @@ import pylab
 
 
 def find_slices(prox_id, dcm_num, modality):
+    """
+    finds desired Prostatex study
+    :param prox_id: ProstatrxId of desired patient
+    :param dcm_num: id of Dicom file
+    :param modality: type of modality
+    :return: returns list of paths to Dicom files that form MRI volume
+    """
     dicom_files = []
     root = os.path.join('..', 'Dataset_PROSTATEX', 'PROSTATEx DICOM', str(prox_id))
     study_dir = os.listdir(root)  # 'D:\BP\Dataset_PROSTATEX\PROSTATEx DICOM\ProstateX-0000\'
@@ -26,6 +33,10 @@ def find_slices(prox_id, dcm_num, modality):
 
 
 def get_volume(dicom_files):
+    """
+    :param dicom_files: list of paths to Dicom files of MRI volumes
+    :return: MRI volume
+    """
     dicom_slices = []
     for dicom_file in dicom_files:
         dicom_slices.append(pydicom.dcmread(dicom_file))
@@ -40,6 +51,15 @@ def get_volume(dicom_files):
 
 
 def extract_region(volume, coordinates, patch_size=None, depth=None, mode='2D'):
+    """
+    function that extracts 2D or 3D patches from MRI volumes
+    :param volume: np.array volume to extract data from
+    :param coordinates: coordinates of middle point of the patch
+    :param patch_size: length of the side of the patch, every patch is of square shape
+    :param depth: in case of 3D patch extraction, additional dimension size
+    :param mode: 2D or 3D patch
+    :return: retruns np.array
+    """
     # depth should be odd number
     assert volume.ndim == 3
     if mode == '2D':
@@ -68,6 +88,13 @@ def extract_region(volume, coordinates, patch_size=None, depth=None, mode='2D'):
 
 
 def resample(image, curr_spacing, new_spacing):
+    """
+    This function uses spline interpolation to interpolate voxel spacing on desired size
+    :param image: np.array to interpolate
+    :param curr_spacing: current spacing
+    :param new_spacing: desired spacing
+    :return: image and resize factor
+    """
     if not np.array_equal(curr_spacing, new_spacing):
         #need to flip spacing because of order of the axis z, y, x
         curr_spacing = np.flip(curr_spacing)
@@ -84,12 +111,12 @@ def resample(image, curr_spacing, new_spacing):
 
 
 def main():
-    path_t2_tra_pic = './Data/t2_tra_pic'
-    path_t2_tra_np = './Data/t2_tra_np'
-    path_t2_tra_3D_np = './Data/t2_tra_np_3D'
-    path_diff_tra_ADC_BVAL_pic = './Data/diff_ADC_BVAL_pic'
-    path_diff_tra_ADC_BVAL_np = './Data/diff_ADC_BVAL_np'
-    path_diff_tra_ADC_BVAL_3D_np = './Data/diff_ADC_BVAL_3D_np'
+    path_t2_tra_pic = '../Data/t2_tra_pic'
+    path_t2_tra_np = '../Data/t2_tra_np'
+    path_t2_tra_3D_np = '../Data/t2_tra_np_3D'
+    path_diff_tra_ADC_BVAL_pic = '../Data/diff_ADC_BVAL_pic'
+    path_diff_tra_ADC_BVAL_np = '../Data/diff_ADC_BVAL_np'
+    path_diff_tra_ADC_BVAL_3D_np = '../Data/diff_ADC_BVAL_np_3D'
 
     t2_spacing = np.array([0.5, 0.5, 3])
     diff_spacing = np.array([2, 2, 3])

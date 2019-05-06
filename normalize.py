@@ -13,6 +13,17 @@ def load(path):
 
 
 def scaling_0_1(data, mode='2D'):
+    """
+    Function that scales numpy arrays into 0, 1 interval
+    :param data: numpy array of shape N x C x W x H or N x C x D x W x H
+    N - Number of stacked images
+    C - Number of channels
+    W - Width of the image
+    H - Height of the image
+    D - Depth of the image
+    :param mode: 2D or 3D mode
+    :return: returns np.array
+    """
     if mode == '2D':
         for cnl in range(data.shape[1]):
             data[:, cnl, :, :] = (data[:, cnl, :, :] - data[:, cnl, :, :].min()) / (data[:, cnl, :, :].max() - data[:, cnl, :, :].min())
@@ -24,6 +35,17 @@ def scaling_0_1(data, mode='2D'):
 
 
 def scaling_z_score(data, mode='2D'):
+    """
+    Function that uses z score scaling
+    :param data: numpy array of shape N x C x W x H or N x C x D x W x H
+    N - Number of stacked images
+    C - Number of channels
+    W - Width of the image
+    H - Height of the image
+    D - Depth of the image
+    :param mode: 2D or 3D mode
+    :return: returns np.array
+    """
     if mode == '2D':
         for cnl in range(data.shape[1]):
             data[:, cnl, :, :] = (data[:, cnl, :, :] - data[:, cnl, :, :].mean()) / data[:, cnl, :, :].std()
@@ -43,19 +65,19 @@ def normalize(data_path, save_path, type='z_score', mode = '2D'):
 
 
 def main():
-    path_t2_tra_np = './Data/t2_tra_np'
-    path_t2_tra_np_min_max = './Data/t2_tra_np_min_max'
-    path_t2_tra_3D_np = './Data/t2_tra_np_3D'
-    path_t2_tra_np_3D_min_max = './Data/t2_tra_np_3D_min_max'
-    path_diff_tra_ADC_BVAL_np = './Data/diff_ADC_BVAL_np'
-    path_diff_tra_ADC_BVAL_np_min_max = './Data/diff_ADC_BVAL_np_min_max'
-    path_diff_tra_ADC_BVAL_3D_np = './Data/diff_ADC_BVAL_3D_np'
-    path_diff_tra_ADC_BVAL_np_3D_min_max = './Data/diff_ADC_BVAL_3D_np_min_max'
+    path_t2_tra_np = '../Data/t2_tra_np'
+    path_t2_tra_np_norm = '../Data/t2_tra_np_norm'
+    path_t2_tra_3D_np = '../Data/t2_tra_np_3D'
+    path_t2_tra_np_3D_norm = '../Data/t2_tra_np_3D_norm'
+    path_diff_tra_ADC_BVAL_np = '../Data/diff_ADC_BVAL_np'
+    path_diff_tra_ADC_BVAL_np_norm = '../Data/diff_ADC_BVAL_np_norm'
+    path_diff_tra_ADC_BVAL_np_3D = '../Data/diff_ADC_BVAL_np_3D'
+    path_diff_tra_ADC_BVAL_np_3D_norm = '../Data/diff_ADC_BVAL_np_3D_norm'
 
-    normalize(path_t2_tra_np, path_t2_tra_np_min_max)
-    normalize(path_t2_tra_3D_np, path_t2_tra_np_3D_min_max, mode='3D')
-    normalize(path_diff_tra_ADC_BVAL_np, path_diff_tra_ADC_BVAL_np_min_max)
-    normalize(path_diff_tra_ADC_BVAL_3D_np, path_diff_tra_ADC_BVAL_np_3D_min_max, mode='3D')
+    normalize(path_t2_tra_np, path_t2_tra_np_norm)
+    normalize(path_t2_tra_3D_np, path_t2_tra_np_3D_norm, mode='3D')
+    normalize(path_diff_tra_ADC_BVAL_np, path_diff_tra_ADC_BVAL_np_norm)
+    normalize(path_diff_tra_ADC_BVAL_np_3D, path_diff_tra_ADC_BVAL_np_3D_norm, mode='3D')
 
 
 if __name__ == '__main__':

@@ -14,6 +14,9 @@ class SiameseDataset(Dataset):
         self.change_strategy(get_pair=get_pair)
 
     def change_strategy(self, get_pair=True):
+        """
+        Change to pair feeding or single feeding
+        """
         self.strategy = self._get_pair if get_pair else self._get_single
         return self
 

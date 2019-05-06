@@ -13,10 +13,28 @@ def load(path):
 
 
 def horizontal_flip(img):
+    """
+    Flip array by last axis, works on 2D and 3D patches
+    :param img: img of shape C x W x H or C x D x W x H
+    C - Number of channels
+    W - Width of the image
+    H - Height of the image
+    D - Depth of the image
+    :return: returns horizontally flipped array
+    """
     return np.flip(img, -2)
 
 
 def vertical_flip(img):
+    """
+    Flip array by last axis, works on 2D and 3D patches
+    :param img: img of shape C x W x H or C x D x W x H
+    C - Number of channels
+    W - Width of the image
+    H - Height of the image
+    D - Depth of the image
+    :return: returns vertically flipped array
+    """
     return np.flip(img, -1)
 
 
@@ -30,10 +48,10 @@ def augment(data_path, save_path):
 
 
 if __name__ == '__main__':
-    path_t2_tra_np = './Data/t2_tra_np'
-    path_t2_tra_3D_np = './Data/t2_tra_np_3D'
-    path_diff_tra_ADC_BVAL_np = './Data/diff_ADC_BVAL_np'
-    path_diff_tra_ADC_BVAL_3D_np = './Data/diff_ADC_BVAL_3D_np'
+    path_t2_tra_np = '../Data/t2_tra_np'
+    path_t2_tra_3D_np = '../Data/t2_tra_np_3D'
+    path_diff_tra_ADC_BVAL_np = '../Data/diff_ADC_BVAL_np'
+    path_diff_tra_ADC_BVAL_3D_np = '../Data/diff_ADC_BVAL_np_3D'
 
     augment(path_t2_tra_np, path_t2_tra_np)
     augment(path_t2_tra_3D_np, path_t2_tra_3D_np)

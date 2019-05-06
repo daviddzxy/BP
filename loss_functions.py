@@ -2,6 +2,9 @@ import torch
 import torch.nn.functional as F
 
 class ContrastiveLoss(torch.nn.Module):
+    """
+    This code was taken from https://github.com/harveyslash/Facial-Similarity-with-Siamese-Networks-in-Pytorch
+    """
     def __init__(self, margin=2.0):
         super(ContrastiveLoss, self).__init__()
         self.margin = margin
