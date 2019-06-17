@@ -7,6 +7,7 @@ class Model():
         self.learning_rate = learning_rate
         self.network = network
         self.loss_function = loss_function
+        self.optimizer = torch.optim.Adam(self.network.parameters(), lr=self.learning_rate)
 
     def fit(self, dataloader):
         pass
@@ -22,7 +23,6 @@ class SiameseModel(Model):
     def fit(self, dataloader):
         loss_history = []
         loss_sum = 0
-        optimizer = torch.optim.Adam(self.network.parameters(), lr=self.learning_rate)
         for epoch in range(0, self.epoch_count):
             for i, data in enumerate(dataloader, 0):
                 image0, image1, pair_label, label0, label1 = data
@@ -30,7 +30,7 @@ class SiameseModel(Model):
                 out1, out2 = self.network(image0.cuda(), image1.cuda())
                 loss_contrastive = self.loss_function(out1, out2, pair_label.cuda())
                 loss_contrastive.backward()
-                optimizer.step()
+                self.optimizer.step()
 
                 loss_sum = loss_contrastive.item() + loss_sum
                 #print("Epoch no. {}\nBatch {}\nCurrent loss {}\n".format(epoch, i, loss_contrastive.item()))
@@ -44,6 +44,7 @@ class SiameseModel(Model):
     def predict(self, dataloader):
         encodings = []
         labels = []
+        paths = []
         with torch.no_grad():
             self.network.eval()
             for img, label, path in dataloader:
@@ -53,5 +54,6 @@ class SiameseModel(Model):
                 label = label.numpy()
                 encodings.extend(out)
                 labels.extend(label)
+                paths.extend(path)
 
-        return np.array(encodings), np.array(labels)
+        return np.array(encodings), np.array(labels), paths
