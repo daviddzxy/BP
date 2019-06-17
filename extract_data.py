@@ -129,11 +129,8 @@ def main():
     combined_df = pd.merge(images, findings, how='left', left_on=['ProxID', 'fid', 'pos'], right_on=['ProxID', 'fid', 'pos'])
     combined_df = combined_df[(combined_df.ProxID != 'ProstateX-0052') & (combined_df.ProxID != 'ProstateX-0025') & (combined_df.ProxID != 'ProstateX-0148')]
 
-    print(len(combined_df))
     combined_t2 = combined_df[combined_df.DCMSerDescr == 't2_tse_tra']
-    print(len(combined_t2))
     combined_t2 = combined_t2.drop_duplicates(subset=['ProxID', 'fid', 'DCMSerDescr'])
-    print(len(combined_t2))
 
     del images
     del findings
